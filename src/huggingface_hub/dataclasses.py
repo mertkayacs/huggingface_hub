@@ -177,7 +177,7 @@ def strict(cls: Type[T] | None = None, *, accept_kwargs: bool = False) -> Type[T
                         setattr(self, f.name, f.default)
                     elif f.default_factory is not MISSING:
                         setattr(self, f.name, f.default_factory())
-                    else:
+                    elif f.init:
                         raise TypeError(f"Missing required field - '{f.name}'")
 
                 # Pass any additional kwargs to `__post_init__` and let the object

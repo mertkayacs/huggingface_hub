@@ -1,6 +1,6 @@
 import inspect
 import sys
-from dataclasses import asdict, astuple, dataclass, is_dataclass
+from dataclasses import asdict, astuple, dataclass, field, is_dataclass
 from typing import Annotated, Any, Dict, List, Literal, Optional, Sequence, Set, TypedDict, Union, get_type_hints
 
 import jedi
@@ -481,6 +481,23 @@ def test_post_init_with_required_kwargs():
 
     with pytest.raises(TypeError, match="Missing required field - 'model_type'"):
         config = ConfigWithRequiresKwargsInPostInit(encoder={"model_type": "t5"})
+
+
+def test_accept_kwargs_init_false_field_set_in_post_init():
+    @strict(accept_kwargs=True)
+    @dataclass
+    class Config:
+        size: int
+        doubled: int = field(init=False)
+
+        def __post_init__(self, **kwargs):
+            self.doubled = self.size * 2
+
+    config = Config(size=3, extra="value")
+    assert config.doubled == 6
+
+    with pytest.raises(TypeError, match="Missing required field - 'size'"):
+        Config()
 
 
 def test_is_recognized_as_dataclass():
